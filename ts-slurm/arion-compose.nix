@@ -3,23 +3,38 @@ let
   slurmconfig = {
   controlMachine = "control";
   nodeName = [ "node[1] CPUs=1 State=UNKNOWN" ];
-      partitionName = [ "debug Nodes=node[1] Default=YES MaxTime=INFINITE State=UP" ];
-      #extraConfig = ''
-      #  AccountingStorageHost=dbd
-      #  AccountingStorageType=accounting_storage/slurmdbd
-  #'';
-  };
+  partitionName = [ "debug Nodes=node[1] Default=YES MaxTime=INFINITE State=UP" ];
+};
+#extraConfig = ''
+  #  AccountingStorageHost=dbd
+  #  AccountingStorageType=accounting_storage/slurmdbd
+#'';
 
-  common = {
-    nixos.useSystemd = true;
-    nixos.configuration.boot.tmpOnTmpfs = true;
-    nixos.configuration.environment.systemPackages = with pkgs; [python3];
-    service.useHostStore = true;
-    nixos.configuration.services.batsky = {enable = true; controller="submit";};
-    service.volumes = [ "/home/auguste/dev/batsky:/batsky" ];
-  };
+inherit (import ./ssh-keys.nix pkgs)
+  snakeOilPrivateKey snakeOilPublicKey;
 
-  addCommon = x: lib.recursiveUpdate x common;
+
+common = {
+  nixos.useSystemd = true;
+  nixos.configuration = {
+    boot.tmpOnTmpfs = true;
+    environment.systemPackages = with pkgs; with python37Packages; [python3 clustershell];
+    environment.etc."privkey.snakeoil" = { mode = "0600"; source = snakeOilPrivateKey; };
+    environment.etc."clustershell/clush.conf".text =
+    ''[Main]
+    ssh_options=-o StrictHostKeyChecking=no -i /etc/privkey.snakeoil'';
+    services.openssh.enable = true;
+    services.openssh.forwardX11 = false;
+    services.batsky = {enable = true; controller="submit";};
+    users.users.root.openssh.authorizedKeys.keys = [ snakeOilPublicKey ];
+  };
+  
+  service.useHostStore = true;
+  
+  service.volumes = [ "/home/auguste/dev/batsky:/batsky" ];
+};
+
+addCommon = x: lib.recursiveUpdate x common;
 
 in
 
