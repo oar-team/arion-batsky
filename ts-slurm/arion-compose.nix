@@ -18,15 +18,16 @@ common = {
   nixos.useSystemd = true;
   nixos.configuration = {
     boot.tmpOnTmpfs = true;
-    environment.systemPackages = with pkgs; with python37Packages; [python3 clustershell];
+    environment.systemPackages = with pkgs; [ batsky (python37.withPackages(ps: with ps; [ clustershell pyzmq click pyinotify sortedcontainers])) ];
     environment.etc."privkey.snakeoil" = { mode = "0600"; source = snakeOilPrivateKey; };
     environment.etc."clustershell/clush.conf".text =
     ''[Main]
     ssh_options=-o StrictHostKeyChecking=no -i /etc/privkey.snakeoil'';
     services.openssh.enable = true;
     services.openssh.forwardX11 = false;
-    services.batsky = {enable = true; controller="submit";};
+    services.batsky = {enable = true; controller="submit"; args="-u -d -l /tmp/batsky.log";};
     users.users.root.openssh.authorizedKeys.keys = [ snakeOilPublicKey ];
+    i18n.defaultLocale = "en_US.UTF-8";
   };
   
   service.useHostStore = true;
