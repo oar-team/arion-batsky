@@ -1,15 +1,19 @@
-{ pkgs, lib, ... }:
-let 
+{ pkgs, lib,... }:
+let
+
+  nbNodes = if (builtins.getEnv "NBNODES" != "") then lib.toInt (builtins.getEnv "NBNODES") else 1;
+  vnodeFactor =  if (builtins.getEnv "VNODEFACTOR" != "") then lib.toInt (builtins.getEnv "VNODEFACTOR") else 1;
+
   slurmconfig = {
   controlMachine = "control";
-  nodeName = [ "node[1] CPUs=1 State=UNKNOWN" ];
-  partitionName = [ "debug Nodes=node[1] Default=YES MaxTime=INFINITE State=UP" ];
+  nodeName = [ "node[1-${toString (nbNodes * vnodeFactor)}] CPUs=1 State=UNKNOWN" ];
+  partitionName = [ "debug Nodes=node[1-${toString (nbNodes * vnodeFactor)}] Default=YES MaxTime=INFINITE State=UP" ];
 };
 #extraConfig = ''
   #  AccountingStorageHost=dbd
   #  AccountingStorageType=accounting_storage/slurmdbd
 #'';
-
+  
 inherit (import ./ssh-keys.nix pkgs)
   snakeOilPrivateKey snakeOilPublicKey;
 
@@ -36,28 +40,52 @@ common = {
 };
 
 addCommon = x: lib.recursiveUpdate x common;
+multiple-services =  base_name: service_base:
+let
+  node_name_ids = builtins.genList (x: {node_name=base_name + toString(vnodeFactor*x+1); id=vnodeFactor*x+1;}) nbNodes;
+in
+  builtins.listToAttrs (map (x: {name=x.node_name; value=(service_base x.node_name x.id);}) node_name_ids);
 
 in
 
 {
-  docker-compose.services.node1 = addCommon {
-    service.hostname="node1";  
-    nixos.configuration.services.ts-slurm  = {
-      client.enable = true;
-    } // slurmconfig;
-  };
- 
-  docker-compose.services.control = addCommon {
-    service.hostname="control";
-    nixos.configuration.services.ts-slurm  = {
-      server.enable = true;
-    } // slurmconfig;
-  }; 
+  docker-compose.services = {
+    control = addCommon {
+      service.hostname="control";
+      nixos.configuration.services.ts-slurm  = {
+        server.enable = true;
+      } // slurmconfig;
+    }; 
   
-  docker-compose.services.submit = addCommon {
-    service.hostname="submit";
-    nixos.configuration.services.ts-slurm  = {
-      enableStools = true;
-    } // slurmconfig;
-  };
+    submit = addCommon {
+      service.hostname="submit";
+      nixos.configuration.services.ts-slurm  = {
+        enableStools = true;
+      } // slurmconfig;
+    };
+  } // multiple-services "node" (name: nodeId: (
+    addCommon {
+      service.hostname= name;
+      nixos.configuration.services.ts-slurm  = {
+        client.enable = true;
+        client.nodeId = nodeId;
+        client.rangeId = vnodeFactor;
+      } // slurmconfig;
+    }));
+ 
+#  {
+#    submit2 =
+#      addCommon {service.hostname="submit2";};
+#  };
+
 }
+
+
+#//  {
+#  submit2 = addCommon {
+#    service.hostname="submit";
+#    nixos.configuration.services.ts-slurm  = {
+#      enableStools = true;
+#    } // slurmconfig;
+#  }; 
+#}
