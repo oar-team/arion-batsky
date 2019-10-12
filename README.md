@@ -10,12 +10,13 @@ Arion Batsky
 nix-env -iA arion -f https://github.com/hercules-ci/arion/tarball/master
 ```
 # Simple test
-Slumr + Batsky
+Slurm + Batsky
 
 ```sh
-cd bs-slurm-simple
+git clone git@github.com:oar-team/arion-batsky.git
+cd arion-batsky/bs-slurm-simple
 arion up
 #In other terminal
-cd bs-slurm-simple
+cd arion-batsky/bs-slurm-simple
 arion docker-compose  exec submit batsky-controller -d -S
 ```
