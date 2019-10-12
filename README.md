@@ -17,5 +17,5 @@ cd bs-slurm-simple
 arion up
 #In other terminal
 cd bs-slurm-simple
-arion docker-compose  exec submit ./batsky/batsky/batsky_controller.py -d -S
+arion docker-compose  exec submit batsky-controller -d -S
 ```

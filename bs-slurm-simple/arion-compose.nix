@@ -38,7 +38,8 @@ common = {
   
   service.useHostStore = true;
   
-  service.volumes = [ "/home/auguste/dev/batsky:/batsky" ];
+  # For sharing host's volumes 
+  #service.volumes = [ "/home/auguste/dev/batsky:/batsky" ];
 };
 
 
