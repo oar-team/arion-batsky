@@ -48,21 +48,21 @@ addCommon = x: lib.recursiveUpdate x common;
 in
 
 {
-  docker-compose.services.node1 = addCommon {
+  services.node1 = addCommon {
     service.hostname="node1";  
     nixos.configuration.services.bs-slurm  = {
       client.enable = true;
     } // slurmconfig;
   };
  
-  docker-compose.services.control = addCommon {
+  services.control = addCommon {
     service.hostname="control";
     nixos.configuration.services.bs-slurm  = {
       server.enable = true;
     } // slurmconfig;
   }; 
   
-  docker-compose.services.submit = addCommon {
+  services.submit = addCommon {
     service.hostname="submit";
     nixos.configuration.services.bs-slurm  = {
       enableStools = true;
