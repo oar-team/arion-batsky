@@ -20,3 +20,7 @@ arion up
 cd arion-batsky/bs-slurm-simple
 arion exec submit batsky-controller -- -d -S
 ```
+
+## Misc
+[BSC Simulator](https://github.com/BSC-RM/slurm_simulator) is also provided see: [Readme](bsc-slurm-simu/README.md)
+
