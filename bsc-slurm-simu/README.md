@@ -13,4 +13,4 @@ export SLURM_SIM_ID=1
 export SLURM_CONF=/srv/slurm_conf/slurm.conf
 sim_mgr -f -w /srv/simple.trace
 ```
-Output trace is located in  [arion-batsky/bsc-slurm-simu/trace](arion-batsky/bsc-slurm-simu/trace)
+Output trace is located in  [arion-batsky/bsc-slurm-simu/traces](arion-batsky/bsc-slurm-simu/traces)
