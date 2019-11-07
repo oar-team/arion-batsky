@@ -14,11 +14,11 @@ Slurm + Batsky
 
 ```sh
 git clone git@github.com:oar-team/arion-batsky.git
-cd arion-batsky/bs-slurm-simple
+cd arion-batsky/fe-slurm
 arion up
 #In other terminal
-cd arion-batsky/bs-slurm-simple
-arion exec submit batsky-controller -- -d -S
+cd arion-batsky/fe-slurm
+arion exec submit batsky-controller -- -d -S -w /srv/test_delay4.json
 ```
 
 ## Misc
