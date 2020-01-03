@@ -21,6 +21,11 @@ cd arion-batsky/fe-slurm
 arion exec submit batsky-controller -- -d -S -w /srv/test_delay4.json
 ```
 
+To stop containers
+```sh
+arion down
+```
+
 ## Misc
 [BSC Simulator](https://github.com/BSC-RM/slurm_simulator) is also provided see: [Readme](bsc-slurm-simu/README.md)
 

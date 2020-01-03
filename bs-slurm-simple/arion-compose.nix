@@ -1,6 +1,6 @@
 { pkgs, lib,... }:
 let
-   #imports = [pkgs.nur.repos.augu5te.modules];
+  #imports = [pkgs.nur.repos.augu5te.modules];
   slurmconfig = {
     controlMachine = "control";
     nodeName = [ "node[1] CPUs=1 State=UNKNOWN" ];
